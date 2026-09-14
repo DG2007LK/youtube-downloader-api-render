@@ -19,6 +19,7 @@ def download():
         'format': 'best',
         'quiet': True,
         'no_warnings': True,
+        'extractor_args': {'youtube': {'player_client': ['android', 'web']}},
     }
 
     try:
@@ -30,7 +31,6 @@ def download():
             
             formats_list = []
             for f in info.get('formats', []):
-                # වීඩියෝ සහ ඕඩියෝ තියෙන ෆෝමැට්ස් විතරක් ফিল්ටර් කරගන්නෙමු
                 if f.get('vcodec') != 'none' and f.get('acodec') != 'none':
                     formats_list.append({
                         'quality': f.get('format_note', f.get('resolution', 'Standard')),
@@ -47,7 +47,7 @@ def download():
 
     except Exception as e:
         print(f"Error: {str(e)}")
-        return jsonify({'success': False, 'error': 'වීඩියෝ විස්තර ලබාගැනීමේදී දෝෂයක් සිදු විය.'}), 500
+        return jsonify({'success': False, 'error': f'දෝෂයකි: {str(e)}'}), 500
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=3000)
