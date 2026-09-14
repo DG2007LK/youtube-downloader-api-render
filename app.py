@@ -15,22 +15,21 @@ def download():
     if not video_url:
         return jsonify({'success': False, 'error': 'කරුණාකර YouTube URL එකක් ලබා දෙන්න!'}), 400
 
+    # YouTube Bot Detection මඟහරවා ගැනීමට නවතම extractor arguments
     ydl_opts = {
         'format': 'best',
         'quiet': True,
         'no_warnings': True,
         'extractor_args': {
             'youtube': {
-                'player_client': ['ios', 'web']
+                'player_client': ['android', 'mweb']
             }
-        },
-        'http_headers': {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
         }
     }
 
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            # කෝඩ් එක වඩාත් ස්ථාවර කිරීමට direct extract
             info = ydl.extract_info(video_url, download=False)
             
             title = info.get('title', 'Unknown Title')
@@ -53,8 +52,14 @@ def download():
             })
 
     except Exception as e:
-        print(f"Error: {str(e)}")
-        return jsonify({'success': False, 'error': f'දෝෂයකි: {str(e)}'}), 500
+        error_msg = str(e)
+        if "Sign in" in error_msg or "bot" in error_msg:
+            # IP බ්ලොක් වූ විට විකල්ප මැසේජ් එකක් හෝ fallback එකක් ලබා දීම
+            return jsonify({
+                'success': False, 
+                'error': 'YouTube සර්වර් එක මඟින් මෙම IP ලිපිනය තාවකාලිකව වළකා ඇත. කරුණාකර වෙනත් ලින්ක් එකක් උත්සාහ කරන්න.'
+            }), 500
+        return jsonify({'success': False, 'error': f'දෝෂයකි: {error_msg}'}), 500
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=3000)
