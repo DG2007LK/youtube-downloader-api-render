@@ -15,17 +15,15 @@ def download():
     if not video_url:
         return jsonify({'success': False, 'error': 'කරුණාකර YouTube URL එකක් ලබා දෙන්න!'}), 400
 
-    # කුකීස් අවශ්‍ය නොවන ලෙස YouTube client සැකසීම
     ydl_opts = {
         'format': 'best',
         'quiet': True,
         'no_warnings': True,
         'extractor_args': {
             'youtube': {
-                'player_client': ['android', 'web']
+                'player_client': ['mweb', 'ios']
             }
-        },
-        'socket_timeout': 15
+        }
     }
 
     try:
@@ -52,10 +50,11 @@ def download():
             })
 
     except Exception as e:
-        print(f"Error: {str(e)}")
+        # නියම එරෝර් එක ස්ක්‍රීන් එකටම පෙන්වීම සඳහා
+        error_message = str(e)
         return jsonify({
             'success': False, 
-            'error': 'වීඩියෝ විස්තර ලබාගැනීමේදී දෝෂයක් සිදු විය. කරුණාකර වෙනත් ලින්ක් එකක් උත්සාහ කරන්න.'
+            'error': f'දෝෂයකි: {error_message}'
         }), 500
 
 if __name__ == '__main__':
